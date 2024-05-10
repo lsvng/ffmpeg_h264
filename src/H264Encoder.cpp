@@ -123,22 +123,11 @@ namespace Codec
     // G: mFrame->data[0][(3 * i * mImageWidth) + (j * 3) + 1]
     // B: mFrame->data[0][(3 * i * mImageWidth) + (j * 3) + 2]
 
-    int wRet;
-    wRet = avcodec_send_frame(mContext, mFrame);
-    if (wRet < 0)
-    {
-      printf("Cannot send packets. Error: %d\n", wRet);
-      return nullptr;
-    }
+    // Send mFrame to FFmpeg codec
+    send(mContext, mFrame);
 
-    wRet = avcodec_receive_packet(mContext, mPacket);
-    if (wRet < 0)
-    {
-      printf("Cannot encode frame. Error: %d\n", wRet);
-      return {};
-    }
-
-    mPacketSize = mPacket->size;
+    // Receive mPacket from FFmpeg codec
+    receive(mContext, mPacket);
 
     // Return encoded video data
     return mPacket->data;
@@ -146,6 +135,31 @@ namespace Codec
 
   int H264Encoder::getPacketSize()
   {
-    return mPacketSize;
+    if (!mPacket->data)
+    {
+      return 0;
+    }
+
+    return mPacket->size;
+  }
+
+  void H264Encoder::send(AVCodecContext* iContext, AVFrame* iFrame)
+  {
+    int wRet = avcodec_send_frame(mContext, mFrame);
+    if (wRet < 0)
+    {
+      printf("Cannot send packets. Error: %d\n", wRet);
+      iFrame = nullptr;
+    }
+  }
+
+  void H264Encoder::receive(AVCodecContext* iContext, AVPacket* iPacket)
+  {
+   int wRet = avcodec_receive_packet(iContext, iPacket);
+    if (wRet < 0)
+    {
+      printf("Cannot encode frame. Error: %d\n", wRet);
+      iPacket = nullptr;
+    }
   }
 }

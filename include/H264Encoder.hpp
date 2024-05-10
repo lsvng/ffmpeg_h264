@@ -64,11 +64,27 @@ namespace Codec
       */
       int getPacketSize();
 
-    private:
+    protected:
+      /**
+       * @brief Send AVFrame to FFmpeg codec
+       * 
+       * @param iContext
+       * @param iPacket
+      */
+      virtual void send(AVCodecContext* iContext, AVFrame* iFrame);
+      
+      /**
+       * @brief Receive AVPacket from FFmpeg codec
+       * 
+       * @param iContext
+       * @param iFrame
+      */
+      virtual void receive(AVCodecContext* iContext, AVPacket* iPacket);
+
+    protected:
       AVCodecContext* mContext; // Used to contain information about the codec used for encoding or decoding audio or video streams
       AVPacket* mPacket;        // Used to represent compressed audio or video data
       AVFrame* mFrame;          // Used to represent a single video or audio frame
-      int mPacketSize;          // Packet Size
   };
 }
 

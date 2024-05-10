@@ -104,22 +104,35 @@ namespace Codec
     // G: mFrame->data[0][(3 * i * mImageWidth) + (j * 3) + 1]
     // B: mFrame->data[0][(3 * i * mImageWidth) + (j * 3) + 2]
     
-    int wRet;
-    wRet = avcodec_send_packet(mContext, mPacket);
+    // Send mPacket to FFmpeg codec
+    send(mContext, mPacket);
+
+    // Receive mFrame from FFmpeg codec
+    receive(mContext, mFrame);
+    
+    // Return decoded video data
+    return &mFrame->data[0][0];
+  }
+
+  void H264Decoder::send(AVCodecContext* iContext, AVPacket* iPacket)
+  {
+    int wRet = avcodec_send_packet(iContext, iPacket);
+
     if (wRet < 0)
     {
       printf("Cannot send packets. Error: %d\n", wRet);
-      return nullptr;
+      iPacket = nullptr;
     }
+  }
 
-    wRet = avcodec_receive_frame(mContext, mFrame);
+  void H264Decoder::receive(AVCodecContext* iContext, AVFrame* iFrame)
+  {
+    int wRet = avcodec_receive_frame(iContext, iFrame);
+    
     if (wRet < 0)
     {
-      printf("Cannot receive frame. Error: %d\n", wRet);
-      return nullptr;
+      printf("Cannot receive frames. Error: %d\n", wRet);
+      iFrame = nullptr;
     }
-    
-    // Return decoded video data
-    return mFrame != nullptr ? &mFrame->data[0][0] : nullptr;
   }
 }

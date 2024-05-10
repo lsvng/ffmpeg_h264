@@ -48,7 +48,7 @@ namespace Codec
        * @param iH264Decoder 
        */
       void operator=(const H264Decoder& iH264Decoder) = delete;
-      
+
       /**
        * @brief Decode the encoded video stream
        * 
@@ -58,16 +58,24 @@ namespace Codec
        */
       uint8_t* decode(uint8_t* iEncodedData, ssize_t iSize);
 
-    private:
+    protected:
       /**
-       * @brief Fill vector with AVFrame
+       * @brief Send AVPacket to FFmpeg codec
        * 
-       * @param iFrame Represents a single video or audio frame
-       * @return uint8_t 
-       */
-      uint8_t* decodedData(const AVFrame* iFrame);
+       * @param iContext
+       * @param iPacket
+      */
+      virtual void send(AVCodecContext* iContext, AVPacket* iPacket);
+      
+      /**
+       * @brief Receive AVFrame from FFmpeg codec
+       * 
+       * @param iContext
+       * @param iFrame
+      */
+      virtual void receive(AVCodecContext* iContext, AVFrame* iFrame);
 
-    private:
+    protected:
       AVCodecContext* mContext; // Used to contain information about the codec used for encoding or decoding audio or video streams
       AVPacket* mPacket;        // Used to represent compressed audio or video data
       AVFrame* mFrame;          // Used to represent a single video or audio frame
